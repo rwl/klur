@@ -24,7 +24,7 @@ jobs:
           sudo ldconfig
       - uses: PyO3/maturin-action@v1
         with:
-          manylinux: auto
+          container: no
           command: build
           args: --release -o dist --find-interpreter
       - name: Upload wheels
