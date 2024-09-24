@@ -12,6 +12,8 @@ on:
 jobs:
   linux:
     runs-on: ubuntu-latest
+    env:
+      BLAS_LIBRARIES: /usr/lib/x86_64-linux-gnu/blas/libblas.a
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies
