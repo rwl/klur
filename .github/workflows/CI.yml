@@ -5,8 +5,8 @@ on:
     branches:
       - main
       - master
-    tags:
-      - 'v*'
+  #    tags:
+  #      - 'v*'
   pull_request:
 
 jobs:
@@ -17,8 +17,8 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt -qq update
-          sudo apt-get install -y liblapack-dev libopenblas-dev
-      - uses: messense/maturin-action@v1
+          sudo apt-get install -y liblapack-dev libblas-dev libopenblas-dev
+      - uses: PyO3/maturin-action@v1
         with:
           manylinux: auto
           command: build
@@ -29,44 +29,45 @@ jobs:
           name: wheels-linux
           path: dist
 
-  windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: messense/maturin-action@v1
-        with:
-          command: build
-          args: --release -o dist --find-interpreter
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-windows
-          path: dist
-
-  macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install dependencies
-        run: |
-          brew update
-          brew install openblas lapack
-          brew upgrade
-      - uses: messense/maturin-action@v1
-        with:
-          command: build
-          args: --release -o dist --universal2 --find-interpreter
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-macos
-          path: dist
+  #  windows:
+  #    runs-on: windows-latest
+  #    steps:
+  #      - uses: actions/checkout@v3
+  #      - uses: messense/maturin-action@v1
+  #        with:
+  #          command: build
+  #          args: --release -o dist --find-interpreter
+  #      - name: Upload wheels
+  #        uses: actions/upload-artifact@v4
+  #        with:
+  #          name: wheels-windows
+  #          path: dist
+  #
+  #  macos:
+  #    runs-on: macos-latest
+  #    steps:
+  #      - uses: actions/checkout@v3
+  #      - name: Install dependencies
+  #        run: |
+  #          brew update
+  #          brew install openblas lapack
+  #          brew upgrade
+  #      - uses: messense/maturin-action@v1
+  #        with:
+  #          command: build
+  #          args: --release -o dist --universal2 --find-interpreter
+  #      - name: Upload wheels
+  #        uses: actions/upload-artifact@v4
+  #        with:
+  #          name: wheels-macos
+  #          path: dist
 
   release:
     name: Release
     runs-on: ubuntu-latest
     if: "startsWith(github.ref, 'refs/tags/')"
-    needs: [ macos, linux ]
+    #    needs: [ macos, linux ]
+    needs: [ linux ]
     steps:
       - uses: actions/download-artifact@v4
         with:
