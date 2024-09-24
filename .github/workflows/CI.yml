@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt -qq update
-          sudo apt-get install -y liblapack-dev libblas-dev libopenblas-serial-dev
+          sudo apt-get install -y liblapack-dev libblas-dev libopenblas-serial-dev libsuitesparse-dev
           sudo ldconfig
       - uses: PyO3/maturin-action@v1
         with:
