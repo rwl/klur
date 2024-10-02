@@ -7,7 +7,7 @@ use suitesparse_sys::{
     klu_z_solve, klu_z_tsolve,
 };
 
-use numpy::{Complex64, PyReadonlyArray1, PyReadwriteArray1, PyReadwriteArrayDyn};
+use numpy::{Complex64, PyReadonlyArray1, PyReadwriteArrayDyn};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
@@ -82,10 +82,8 @@ fn factor_solve(
 #[pyo3(text_signature = "(n, rowind, colptr, nz, b, /, trans=False)")]
 fn z_factor_solve(
     n: i32,
-    // rowind: PyReadonlyArray1<i32>,
-    mut rowind: PyReadwriteArray1<i32>,
-    // colptr: PyReadonlyArray1<i32>,
-    mut colptr: PyReadwriteArray1<i32>,
+    rowind: PyReadonlyArray1<i32>,
+    colptr: PyReadonlyArray1<i32>,
     nz: PyReadonlyArray1<Complex64>,
     mut b: PyReadwriteArrayDyn<Complex64>,
     trans: bool,
@@ -96,16 +94,15 @@ fn z_factor_solve(
     let mut b: Vec<f64> = interleave(b0.iter().map(|v| v.re), b0.iter().map(|v| v.im)).collect();
 
     let a_i = rowind
-        .as_slice_mut()
+        .as_slice()
         .map_err(|err| PyValueError::new_err(format!("rowind: {}", err)))?;
     let a_p = colptr
-        .as_slice_mut()
+        .as_slice()
         .map_err(|err| PyValueError::new_err(format!("colptr: {}", err)))?;
     let a_x = nz
         .as_slice()
         .map_err(|err| PyValueError::new_err(format!("nz: {}", err)))?;
-    let mut a_x: Vec<f64> =
-        interleave(a_x.iter().map(|v| v.re), a_x.iter().map(|v| v.im)).collect();
+    let a_x: Vec<f64> = interleave(a_x.iter().map(|v| v.re), a_x.iter().map(|v| v.im)).collect();
 
     let common = unsafe { alloc(Layout::new::<klu_common>()) as *mut klu_common };
     if common.is_null() {
@@ -120,15 +117,8 @@ fn z_factor_solve(
         return Err(PyValueError::new_err("error calling klu_analyze"));
     }
 
-    let mut numeric = unsafe {
-        klu_z_factor(
-            a_p.as_mut_ptr(),
-            a_i.as_mut_ptr(),
-            a_x.as_mut_ptr(),
-            symbolic,
-            common,
-        )
-    };
+    let mut numeric =
+        unsafe { klu_z_factor(a_p.as_ptr(), a_i.as_ptr(), a_x.as_ptr(), symbolic, common) };
     if numeric.is_null() {
         unsafe {
             klu_free_symbolic(&mut symbolic as *mut *mut klu_symbolic, common);

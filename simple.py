@@ -34,7 +34,7 @@ print(klur.factor_solve.__doc__)
 # from inspect import signature
 # print(signature(pyrlu.factor_solve))
 
-klur.factor_solve(n, A.indices, A.indptr, A.data, x, par=True)
+klur.factor_solve(n, A.indices, A.indptr, A.data, x)
 
 print(x)
 
@@ -43,6 +43,6 @@ print(x)
 A = csc_matrix((a, arow, acolst), shape=(n, n), dtype=complex)
 x = asfortranarray(c_[b, b], dtype=complex)
 
-klur.z_factor_solve(n, A.indices, A.indptr, A.data, x, par=True)
+klur.z_factor_solve(n, A.indices, A.indptr, A.data, x)
 
 print(x)
